@@ -1,0 +1,99 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\title{Driver Monitoring System Using Emotion Detection}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This project implements a real-time driver monitoring system using computer vision and deep learning. The system analyzes facial expressions, eye and mouth movements, and head posture to detect emotional and physical states such as drowsiness, yawning, head nodding, and emotions like sadness, fear, and neutrality. Based on these inputs, the system can be integrated with an external control mechanism to adjust the speed of a cart, slowing down in unsafe conditions and maintaining speed when the driver appears attentive.
+
+\section{Project Goals}
+\begin{itemize}
+    \item Detect multiple faces simultaneously and analyze their states independently.
+    \item Recognize driver tiredness indicators such as eye blinks, yawns, and head nodding.
+    \item Detect and classify driver emotions in real-time using DeepFace and MediaPipe.
+    \item Correct misclassifications (e.g., treat fear as neutral when indicators don’t match).
+    \item Provide a safety mechanism by interpreting emotional and physical states for vehicle speed control (hypothetically adjusting cart speed).
+\end{itemize}
+
+\section{Technologies Used}
+\begin{itemize}
+    \item \textbf{OpenCV}: For real-time webcam video capture and frame processing.
+    \item \textbf{MediaPipe}: For precise face landmark detection (eyes, mouth, nose).
+    \item \textbf{DeepFace}: For emotion analysis using a deep learning model.
+    \item \textbf{NumPy}: For numerical operations like distance calculations.
+    \item \textbf{Python}: The overall implementation language.
+    \item \textbf{Collections (deque, defaultdict)}: For maintaining per-face history and state.
+\end{itemize}
+
+\section{Core Functionality}
+\subsection{Face Landmark Detection (MediaPipe)}
+\begin{itemize}
+    \item Tracks up to 5 faces simultaneously.
+    \item Extracts key facial landmarks for eyes, mouth, and nose.
+\end{itemize}
+\subsection{Emotion Detection (DeepFace)}
+\begin{itemize}
+    \item Captures a cropped face image and predicts the dominant emotion.
+    \item Applies smoothing to avoid flickering or unstable predictions.
+    \item Includes logic to override fear or sad when facial context contradicts it.
+\end{itemize}
+\subsection{Tiredness Detection}
+\begin{itemize}
+    \item Eye Aspect Ratio (EAR) detects blinking or eye closure.
+    \item Mouth Aspect Ratio (MAR) detects yawning.
+    \item A sustained low EAR triggers a drowsiness warning.
+    \item A high MAR triggers a yawning warning.
+\end{itemize}
+\subsection{Head Nod Detection}
+\begin{itemize}
+    \item Compares vertical displacement of the nose tip across frames.
+    \item Large vertical shifts indicate nodding, a sign of sleepiness.
+\end{itemize}
+\subsection{Emotion Correction Rules}
+\begin{itemize}
+    \item Emotion `fear` downgraded to `neutral` if facial features are calm.
+    \item Emotion `sad` reclassified if mouth corners are raised or EAR is high.
+    \item Uses a rolling emotion history to ensure stability before updating UI.
+\end{itemize}
+\subsection{Visual Output}
+\begin{itemize}
+    \item Displays:
+    \begin{itemize}
+        \item Real-time bounding box around each face.
+        \item Emotion label above the face.
+        \item Warnings such as ``\textbf{⚠ Drowsiness}'', ``\textbf{⚠ Yawning}'', or ``\textbf{⚠ Head Nodding}''.
+        \item Facial landmarks overlaid for debugging and visualization.
+    \end{itemize}
+\end{itemize}
+
+\section{Application Scenario}
+This system can be used to monitor a driver or operator in any context where alertness and emotional control are critical. A connected vehicle or cart can:
+\begin{itemize}
+    \item Slow down if the driver is drowsy, yawning, or frequently nodding.
+    \item Maintain normal speed when the driver appears alert and emotionally stable.
+    \item Integrate into autonomous navigation systems, e-scooters, or industrial carts.
+\end{itemize}
+
+\section{Limitations}
+\begin{itemize}
+    \item Emotion misclassification in low lighting or poor face angles.
+    \item DeepFace latency may affect real-time performance on low-end machines.
+    \item Assumes that the driver's face is always visible to the camera.
+    \item No speed control logic implemented in this script --- would need to be integrated separately.
+    \item No facial identity tracking --- faces are handled by index, not identity.
+    \item It is challenging to accurately differentiate between subtle emotions such as sadness vs. neutrality or fear vs. calm, especially when facial expressions are mild or ambiguous.
+\end{itemize}
+
+\section{Conclusion}
+This system is a powerful prototype for monitoring emotional and physical tiredness in drivers. By combining facial landmark tracking (MediaPipe) and emotion recognition (DeepFace), it offers real-time monitoring and the foundation for an intelligent response system, ensuring safety, reducing accidents, and supporting human-centric automation.
+
+\end{document}
