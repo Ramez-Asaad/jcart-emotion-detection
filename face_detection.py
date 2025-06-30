@@ -8,10 +8,10 @@ import numpy as np
 from deepface import DeepFace
 from scipy.spatial import distance as dist
 
-# Restart with Python 3.11 if needed
-if "Python311" not in sys.executable:
-    python311_path = r"C:\Users\ranah\AppData\Local\Programs\Python\Python311\python.exe"
-    os.execv(python311_path, [python311_path] + sys.argv)
+# # Restart with Python 3.11 if needed
+# if "Python311" not in sys.executable:
+#     python311_path = r"C:\Users\ranah\AppData\Local\Programs\Python\Python311\python.exe"
+#     os.execv(python311_path, [python311_path] + sys.argv)
 
 # =========== MediaPipe ===========
 import mediapipe as mp
