@@ -1,19 +1,93 @@
 \documentclass[12pt]{article}
 \usepackage{geometry}
-\geometry{a4paper, margin=1in}
 \usepackage{graphicx}
 \usepackage{enumitem}
-\usepackage{hyperref}
+\geometry{a4paper, margin=0.7in}
 
-\title{Driver Monitoring System Using Emotion Detection}
-\author{}
-\date{}
+\usepackage{hyperref}
+\usepackage{tikz}
 
 \begin{document}
-\maketitle
+
+% Title page with large margins
+{\newgeometry{left=1in,right=1in,top=1.2in,bottom=1.2in}
+\begin{titlepage}
+    \centering
+    \vspace{1cm}
+    {\Large\scshape James Madison University \par}
+    \vspace{0.5cm}
+    {\large Information Technology (IT) Program \par}
+    {\large IT 445 - Capstone Implementation \par}
+    {\large Spring 2023 \par}
+    \vspace{1cm}
+    \rule{\textwidth}{0.5pt}
+    \vspace{0.5cm}
+    {\bfseries\LARGE Analyzing Autonomous Cart Passenger\\[0.2cm]
+    Experience Using Emotion Detection \par}
+    \vspace{0.5cm}
+    \rule{\textwidth}{0.5pt}
+    \vspace{0.8cm}
+    {\large Monday 30\textsuperscript{th} June, 2025 \par}
+    {\large 12:22:50 \par}
+    \vspace{0.5cm}
+    \begin{minipage}{0.3\textwidth}
+        \raggedright
+        \textit{Submitted to:}\\
+        Dr. Samy El-Tawab
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \raggedleft
+        \textit{Authors:}\\
+        Rana Moussa \par Ramez Asaad
+    \end{minipage}
+    \vfill
+    % Optionally add logos here
+    % \includegraphics[width=0.35\textwidth]{jmu_logo.png}\par
+    % \vspace{1cm}
+    % \includegraphics[width=0.18\textwidth]{jac_logo.png}\par
+    % \vspace{1cm}
+\end{titlepage}
+\restoregeometry}
+
+% Set smaller margins for the rest of the document
+\geometry{a4paper, margin=0.7in}
 
 \section{Introduction}
 This project implements a real-time driver monitoring system using computer vision and deep learning. The system analyzes facial expressions, eye and mouth movements, and head posture to detect emotional and physical states such as drowsiness, yawning, head nodding, and emotions like sadness, fear, and neutrality. Based on these inputs, the system can be integrated with an external control mechanism to adjust the speed of a cart, slowing down in unsafe conditions and maintaining speed when the driver appears attentive.
+\usetikzlibrary{shapes.geometric, arrows.meta}
+
+\usetikzlibrary{matrix, positioning, arrows.meta}
+
+\begin{tikzpicture}[
+  block/.style={rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, text centered, draw=black, fill=blue!10},
+  arrow/.style={thick,->,>=Stealth}
+]
+\matrix (m) [row sep=1cm, column sep=1.5cm] {
+  % Row 1
+  \node[block] (input) {Camera Frame Capture}; & \\
+  % Row 2
+  \node[block] (preprocess) {Frame Preprocessing (BGR $\rightarrow$ RGB)}; & \\
+  % Row 3
+  \node[block] (landmarks) {Face Detection \& Landmark Extraction (MediaPipe)}; & \node[block] (fatigue) {Fatigue \& Alertness Analysis}; \\
+  % Row 4
+  \node[block] (crop) {Per-Face Cropping}; & \\
+  % Row 5
+  \node[block] (deepface) {Emotion Analysis (DeepFace)}; & \\
+  % Row 6
+  \node[block] (correction) {Emotion Correction \& Smoothing}; & \\
+  % Row 7
+  \node[block] (output) {Visualization \& Output}; & \\
+};
+
+\draw[arrow] (input) -- (preprocess);
+\draw[arrow] (preprocess) -- (landmarks);
+\draw[arrow] (landmarks) -- (crop);
+\draw[arrow] (crop) -- (deepface);
+\draw[arrow] (deepface) -- (correction);
+\draw[arrow] (correction) -- (output);
+\draw[arrow] (landmarks) -- (fatigue);
+\draw[arrow] (fatigue) |- (correction);
+\end{tikzpicture}
 
 \section{Project Goals}
 \begin{itemize}
@@ -70,30 +144,4 @@ This project implements a real-time driver monitoring system using computer visi
     \begin{itemize}
         \item Real-time bounding box around each face.
         \item Emotion label above the face.
-        \item Warnings such as ``\textbf{⚠ Drowsiness}'', ``\textbf{⚠ Yawning}'', or ``\textbf{⚠ Head Nodding}''.
-        \item Facial landmarks overlaid for debugging and visualization.
-    \end{itemize}
-\end{itemize}
-
-\section{Application Scenario}
-This system can be used to monitor a driver or operator in any context where alertness and emotional control are critical. A connected vehicle or cart can:
-\begin{itemize}
-    \item Slow down if the driver is drowsy, yawning, or frequently nodding.
-    \item Maintain normal speed when the driver appears alert and emotionally stable.
-    \item Integrate into autonomous navigation systems, e-scooters, or industrial carts.
-\end{itemize}
-
-\section{Limitations}
-\begin{itemize}
-    \item Emotion misclassification in low lighting or poor face angles.
-    \item DeepFace latency may affect real-time performance on low-end machines.
-    \item Assumes that the driver's face is always visible to the camera.
-    \item No speed control logic implemented in this script --- would need to be integrated separately.
-    \item No facial identity tracking --- faces are handled by index, not identity.
-    \item It is challenging to accurately differentiate between subtle emotions such as sadness vs. neutrality or fear vs. calm, especially when facial expressions are mild or ambiguous.
-\end{itemize}
-
-\section{Conclusion}
-This system is a powerful prototype for monitoring emotional and physical tiredness in drivers. By combining facial landmark tracking (MediaPipe) and emotion recognition (DeepFace), it offers real-time monitoring and the foundation for an intelligent response system, ensuring safety, reducing accidents, and supporting human-centric automation.
-
-\end{document}
+        \item Warnings such as ``\textbf{⚠ Drowsiness}'', ``\textbf{⚠ Yawning}''
