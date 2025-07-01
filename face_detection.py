@@ -50,25 +50,39 @@ emotion_history = defaultdict(lambda: deque(maxlen=15))
 neutral_like_sad = defaultdict(int)
 
 # =========== Webcam ===========
+# Set ZED camera to highest available resolution
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # ZED default high-res width
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080) # ZED default high-res height
 print("Driver monitoring started...")
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = face_mesh.process(rgb)
+    # Rotate the frame 180 degrees to correct for upside-down camera
+    frame = cv2.rotate(frame, cv2.ROTATE_180)
+    # --- Extract left image from ZED stereo frame ---
     h, w, _ = frame.shape
+    left_img = frame[:, :w // 2]  # Use left half only
+    rgb = cv2.cvtColor(left_img, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(rgb)
+    h, w, _ = left_img.shape  # Update shape for downstream code
     if results.multi_face_landmarks:
         for face_idx, face_landmarks in enumerate(results.multi_face_landmarks):
             # Get landmark coordinates
             landmarks = np.array([(int(lm.x * w), int(lm.y * h)) for lm in face_landmarks.landmark])
             # Bounding box
-            xs, ys = landmarks[:,0], landmarks[:,1]
+            xs, ys = landmarks[:, 0], landmarks[:, 1]
             x_min, x_max = xs.min(), xs.max()
             y_min, y_max = ys.min(), ys.max()
-            face_img = frame[y_min:y_max, x_min:x_max]
+            # Crop a margin around the face for emotion detection
+            margin = 40
+            x_min_c = max(x_min - margin, 0)
+            x_max_c = min(x_max + margin, w)
+            y_min_c = max(y_min - margin, 0)
+            y_max_c = min(y_max + margin, h)
+            face_img = left_img[y_min_c:y_max_c, x_min_c:x_max_c]
             # Emotion detection
             try:
                 result = DeepFace.analyze(face_img, actions=['emotion'], enforce_detection=False, detector_backend='mediapipe')
@@ -138,7 +152,8 @@ while True:
             # Draw landmarks
             for (x, y) in landmarks:
                 cv2.circle(frame, (x, y), 1, (0, 255, 0), -1)
-    cv2.imshow("Driver Emotion & Fatigue Monitor", frame)
+    # Show only the left image in the output window
+    cv2.imshow("Driver Emotion & Fatigue Monitor", left_img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cap.release()
