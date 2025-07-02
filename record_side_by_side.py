@@ -28,11 +28,11 @@ emotion_history = defaultdict(lambda: deque(maxlen=15))
 neutral_like_sad = defaultdict(int)
 
 # =========== Video Capture ===========
-cap_passenger = cv2.VideoCapture(0)
+cap_passenger = cv2.VideoCapture(6)
 cap_passenger.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap_passenger.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
-cap_front = cv2.VideoCapture(6)
+cap_front = cv2.VideoCapture(0)
 cap_front.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap_front.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
@@ -50,17 +50,23 @@ while True:
 
     # --- Passenger camera: process left lens and run emotion detection ---
     frame1 = cv2.rotate(frame1, cv2.ROTATE_180)
-    # --- Front camera: rotate and process left lens only ---
-    frame2 = cv2.rotate(frame2, cv2.ROTATE_180)
+    # --- Crop 20% from all sides of the left lens image ---
     h1, w1, _ = frame1.shape
     left_img1 = frame1[:, :w1 // 2]
-    h2, w2, _ = frame2.shape
-    left_img2 = frame2[:, :w2 // 2]
-    rgb1 = cv2.cvtColor(left_img1, cv2.COLOR_BGR2RGB)
+    crop_x = int(left_img1.shape[1] * 0.2)
+    crop_y = int(left_img1.shape[0] * 0.2)
+    crop_w = left_img1.shape[1] - 2 * crop_x
+    crop_h = left_img1.shape[0] - 2 * crop_y
+    cropped_img1 = left_img1[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
+    # --- Enhance lighting: histogram equalization on Y channel ---
+    yuv = cv2.cvtColor(cropped_img1, cv2.COLOR_BGR2YUV)
+    yuv[:, :, 0] = cv2.equalizeHist(yuv[:, :, 0])
+    enhanced_img1 = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR)
+    rgb1 = cv2.cvtColor(enhanced_img1, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(rgb1)
-    h, w, _ = left_img1.shape
+    h, w, _ = enhanced_img1.shape
 
-    display_img1 = left_img1.copy()
+    display_img1 = enhanced_img1.copy()
     if results.multi_face_landmarks:
         for face_idx, face_landmarks in enumerate(results.multi_face_landmarks):
             landmarks = np.array([(int(lm.x * w), int(lm.y * h)) for lm in face_landmarks.landmark])
@@ -97,12 +103,16 @@ while True:
             for (x, y) in landmarks:
                 cv2.circle(display_img1, (x, y), 1, (0, 255, 0), -1)
 
+    # --- Front camera: rotate and process left lens only ---
+    frame2 = cv2.rotate(frame2, cv2.ROTATE_180)
+    h2, w2, _ = frame2.shape
+    left_img2 = frame2[:, :w2 // 2]
     # --- Resize both for side-by-side display ---
     display_img1 = cv2.resize(display_img1, (960, 540))
-    left_img2 = cv2.resize(left_img2, (960, 540))
+    left_img2_resized = cv2.resize(left_img2, (960, 540))
 
     # --- Combine side by side ---
-    combined = np.hstack((display_img1, left_img2))
+    combined = np.hstack((display_img1, left_img2_resized))
 
     # --- Add timestamp ---
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
