@@ -5,6 +5,7 @@ shape_predictor_68_face_landmarks.dat
 __pycache__/
 *.py[cod]
 *$py.class
+*.avi
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
