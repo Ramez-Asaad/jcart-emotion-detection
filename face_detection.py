@@ -61,7 +61,6 @@ while True:
     if not ret:
         break
     # Rotate the frame 180 degrees to correct for upside-down camera
-    frame = cv2.rotate(frame, cv2.ROTATE_180)
     # --- Extract left image from ZED stereo frame ---
     h, w, _ = frame.shape
     left_img = frame[:, :w // 2]  # Use left half only

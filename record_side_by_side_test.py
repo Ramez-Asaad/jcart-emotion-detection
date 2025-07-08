@@ -5,7 +5,7 @@ import numpy as np
 from collections import deque, Counter, defaultdict
 from datetime import datetime
 from face_detection_passenger import analyze_faces_and_draw, get_face_mesh
-from face_detection_passenger import smart_enhance
+
 # =========== Parameters ===========
 EAR_THRESHOLD = 0.25
 EAR_CONSEC_FRAMES = 15
@@ -16,6 +16,11 @@ LEFT_EYE_IDX = [33, 160, 158, 133, 153, 144]
 RIGHT_EYE_IDX = [362, 385, 387, 263, 373, 380]
 NOSE_TIP_IDX = 1
 
+# =========== MediaPipe Setup ===========
+def get_face_mesh():
+    mp_face_mesh = mp.solutions.face_mesh
+    return mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=5, refine_landmarks=True)
+
 # =========== State (per face) ===========
 blink_counter = defaultdict(int)
 yawn_counter = defaultdict(int)
@@ -24,17 +29,17 @@ prev_y = defaultdict(lambda: None)
 emotion_history = defaultdict(lambda: deque(maxlen=15))
 neutral_like_sad = defaultdict(int)
 
-def crop_and_enhance(img, intensity=0.5):
+def crop_and_enhance(img):
     h, w, _ = img.shape
     left_img = img[:, :w // 2]
     crop_x = int(left_img.shape[1] * 0.2)
     crop_y = int(left_img.shape[0] * 0.2)
     crop_w = left_img.shape[1] - 2 * crop_x
     crop_h = left_img.shape[0] - 2 * crop_y
-    cropped = left_img[crop_y:crop_y+crop_h, crop_x+200:crop_x+crop_w]
+    cropped = left_img[crop_y:crop_y+crop_h, crop_x:crop_x+crop_w]
     yuv = cv2.cvtColor(cropped, cv2.COLOR_BGR2YUV)
     yuv[:, :, 0] = cv2.equalizeHist(yuv[:, :, 0])
-    enhanced = smart_enhance(cropped, intensity)  # Use smart_enhance from face_detection_passenger
+    enhanced = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR)
     return enhanced
 
 def eye_aspect_ratio(eye):
@@ -110,30 +115,17 @@ def detect_emotion_and_draw(face_mesh, img, w, h):
             # Force 'surprised' if geometry is strongly surprised, even if DeepFace says 'fear'
             if (ear > 0.28 and mar > 0.5) and emotion in ["fear", "neutral"]:
                 emotion = "surprised"
-            # Restrictive rule: Only set 'angry' if at least three cues are present and DeepFace did not detect a strong emotion
-            brow_distance = abs(landmarks[70][0] - landmarks[300][0])
-            brow_inner_distance = abs(landmarks[105][0] - landmarks[334][0])
-            left_corner_y = landmarks[78][1]
-            right_corner_y = landmarks[308][1]
-            center_top_y = landmarks[13][1]
-            center_bottom_y = landmarks[14][1]
-            center_y = (center_top_y + center_bottom_y) / 2
-            strong_emotions = ["happy", "surprised", "fear", "disgust", "sad"]
-            cues = 0
-            if brow_distance < 60:
-                cues += 1
-            if brow_inner_distance < 30:
-                cues += 1
-            if mar < 0.28:
-                cues += 1
-            if left_corner_y >= center_y - 5 or right_corner_y >= center_y - 5:
-                cues += 1
-            if cues >= 2 and emotion not in strong_emotions:
-                emotion = "angry"
+           
             emotion_history[face_idx].append(emotion)
             most_common_emotion = Counter(emotion_history[face_idx]).most_common(1)[0][0]
             display_emotion = most_common_emotion
-            cv2.rectangle(display_img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            # Highlight angry emotion with red box and warning
+            if display_emotion == "angry":
+                cv2.rectangle(display_img, (x_min, y_min), (x_max, y_max), (0, 0, 255), 2)
+                cv2.putText(display_img, "\u26A0 Angry Detected!", (x_min, y_max + 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            else:
+                cv2.rectangle(display_img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
             cv2.putText(display_img, f"Emotion: {display_emotion}", (x_min, y_min-10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             for (x, y) in landmarks:
@@ -147,12 +139,10 @@ def process_front_camera(frame):
     return left_img
 
 def main():
-    cap_passenger = cv2.VideoCapture(4)
+    cap_passenger = cv2.VideoCapture(0)
     cap_passenger.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap_passenger.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    cap_front = cv2.VideoCapture(6)
-    cap_front.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap_front.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     # Create output filename with day and timestamp
     now = datetime.now()
@@ -162,27 +152,17 @@ def main():
     print(f"Recording started. Saving to {out_filename}. Press 'q' to stop.")
     while True:
         ret1, frame1 = cap_passenger.read()
-        ret2, frame2 = cap_front.read()
-        if not ret1 or not ret2:
+        if not ret1:
             break
-        frame1 = cv2.rotate(frame1, cv2.ROTATE_180)
-        frame2 = cv2.rotate(frame2, cv2.ROTATE_180)
-        frame1 = crop_and_enhance(frame1, 0.5)  # Use smart_enhance from face_detection_passenger
-        # Ensure frame1 is processed before analyzing faces
-        h, w, _ = frame1.shape
+        # Use the unified detection/enhancement function
         display_img1 = analyze_faces_and_draw(frame1, face_mesh)
-        frame2_processed = process_front_camera(frame2)
-        display_img1 = cv2.resize(display_img1, (960, 540))
-        left_img2_resized = cv2.resize(frame2_processed, (960, 540))
-        combined = np.hstack((display_img1, left_img2_resized))
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        cv2.putText(combined, timestamp, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-        cv2.imshow('Passenger (left) | Front (right)', combined)
-        out.write(combined)
+        cv2.putText(display_img1, timestamp, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv2.imshow('Passenger', display_img1)
+        out.write(display_img1)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap_passenger.release()
-    cap_front.release()
     out.release()
     cv2.destroyAllWindows()
 
