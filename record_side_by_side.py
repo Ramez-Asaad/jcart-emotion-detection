@@ -31,7 +31,7 @@ def crop_and_enhance(img, intensity=0.5):
     crop_y = int(left_img.shape[0] * 0.2)
     crop_w = left_img.shape[1] - 2 * crop_x
     crop_h = left_img.shape[0] - 2 * crop_y
-    cropped = left_img[crop_y:crop_y+crop_h, crop_x+200:crop_x+crop_w]
+    cropped = left_img[crop_y:crop_y+crop_h, crop_x+200:crop_x+crop_w+100]
     yuv = cv2.cvtColor(cropped, cv2.COLOR_BGR2YUV)
     yuv[:, :, 0] = cv2.equalizeHist(yuv[:, :, 0])
     enhanced = smart_enhance(cropped, intensity)  # Use smart_enhance from face_detection_passenger
@@ -150,9 +150,9 @@ def main():
     cap_passenger = cv2.VideoCapture(4)
     cap_passenger.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap_passenger.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    cap_front = cv2.VideoCapture(6)
-    cap_front.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap_front.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    # cap_front = cv2.VideoCapture(6)
+    # cap_front.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    # cap_front.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     # Create output filename with day and timestamp
     now = datetime.now()
@@ -162,27 +162,26 @@ def main():
     print(f"Recording started. Saving to {out_filename}. Press 'q' to stop.")
     while True:
         ret1, frame1 = cap_passenger.read()
-        ret2, frame2 = cap_front.read()
-        if not ret1 or not ret2:
+        #ret2, frame2 = cap_front.read()
+        if not ret1:
             break
         frame1 = cv2.rotate(frame1, cv2.ROTATE_180)
-        frame2 = cv2.rotate(frame2, cv2.ROTATE_180)
-        frame1 = crop_and_enhance(frame1, 0.5)  # Use smart_enhance from face_detection_passenger
+        frame1 = crop_and_enhance(frame1, 1)  # Use smart_enhance from face_detection_passenger
         # Ensure frame1 is processed before analyzing faces
         h, w, _ = frame1.shape
         display_img1 = analyze_faces_and_draw(frame1, face_mesh)
-        frame2_processed = process_front_camera(frame2)
+        #frame2_processed = process_front_camera(frame2)
         display_img1 = cv2.resize(display_img1, (960, 540))
-        left_img2_resized = cv2.resize(frame2_processed, (960, 540))
-        combined = np.hstack((display_img1, left_img2_resized))
+        #left_img2_resized = cv2.resize(frame2_processed, (960, 540))
+       # combined = np.hstack((display_img1, left_img2_resized))
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        cv2.putText(combined, timestamp, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-        cv2.imshow('Passenger (left) | Front (right)', combined)
-        out.write(combined)
+        cv2.putText(display_img1, timestamp, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+        cv2.imshow('Passenger (left) | Front (right)', display_img1)
+        out.write(display_img1)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap_passenger.release()
-    cap_front.release()
+    # cap_front.release()
     out.release()
     cv2.destroyAllWindows()
 
