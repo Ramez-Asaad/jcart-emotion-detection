@@ -1,0 +1,24 @@
+timestamp,emotion_1,emotion_2
+2025-07-15 12:11:29,neutral,none
+2025-07-15 12:11:34,neutral,none
+2025-07-15 12:11:39,neutral,neutral
+2025-07-15 12:11:44,neutral,neutral
+2025-07-15 12:11:49,sad,neutral
+2025-07-15 12:11:54,Drowsiness,angry
+2025-07-15 12:11:59,none,none
+2025-07-15 12:12:04,neutral,none
+2025-07-15 12:12:09,angry,none
+2025-07-15 12:12:14,happy,none
+2025-07-15 12:12:19,angry,none
+2025-07-15 12:12:24,neutral,none
+2025-07-15 12:12:29,none,none
+2025-07-15 12:12:35,neutral,neutral
+2025-07-15 12:12:40,Head Nodding,none
+2025-07-15 12:12:45,neutral,neutral
+2025-07-15 12:12:50,neutral,none
+2025-07-15 12:12:55,Drowsiness,none
+2025-07-15 12:13:00,neutral,Drowsiness
+2025-07-15 12:13:05,angry,Drowsiness
+2025-07-15 12:13:10,neutral,none
+2025-07-15 12:13:15,angry,neutral
+2025-07-15 12:13:20,sad,neutral

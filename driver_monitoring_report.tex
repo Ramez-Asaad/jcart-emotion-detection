@@ -18,7 +18,7 @@
     \vspace{0.5cm}
     {\large Information Technology (IT) Program \par}
     {\large IT 445 - Capstone Implementation \par}
-    {\large Spring 2023 \par}
+    {\large Summer 2025 \par}
     \vspace{1cm}
     \rule{\textwidth}{0.5pt}
     \vspace{0.5cm}
@@ -27,8 +27,8 @@
     \vspace{0.5cm}
     \rule{\textwidth}{0.5pt}
     \vspace{0.8cm}
-    {\large Monday 30\textsuperscript{th} June, 2025 \par}
-    {\large 12:22:50 \par}
+    {\large Friday 11\textsuperscript{th} july, 2025 \par}
+    {\large 15:11:20 \par}
     \vspace{0.5cm}
     \begin{minipage}{0.3\textwidth}
         \raggedright
@@ -54,20 +54,19 @@
 \section{Overview}
 This report describes a real-time driver and passenger monitoring system for autonomous carts, using computer vision and deep learning. The system detects drowsiness, yawning, and emotions from camera feeds, and provides visual feedback and warnings. The implementation is modular, robust, and designed for real-world conditions.
 
+\section{Recent Key Updates}
+\begin{itemize}
+    \item \textbf{Advanced Image Processing for All Lighting Conditions:} A new, adjustable image processing function was developed and integrated, allowing the system to enhance video frames for better detection accuracy in any lighting situation. This function can be tuned as needed whenever processing is applied.
+    \item \textbf{Dual-Frame Video Recording with Automated Logging:} The recording workflow now outputs videos with two frames side by side: one showing the raw camera feed, and the other displaying the processed feed with detection overlays. This is paired with automated emotion logging and file naming, making analysis and data management easier.
+    \item \textbf{More Accurate and Visible Emotion Detection:} The system now detects a wider range of emotions, with improved accuracy and visibility for ``angry'' and ``sad'' states---even in difficult scenarios such as users wearing glasses or in poor lighting.
+    \item \textbf{Robust Handling of Multiple Faces and Lighting Variations:} Detection and analysis are now more reliable when multiple faces are present or when lighting conditions change, ensuring consistent performance in real-world environments.
+\end{itemize}
+
 \section{System Scripts}
 The project consists of several Python scripts, each responsible for a key part of the monitoring system:
 
 \subsection{face\_detection.py}
 This script performs real-time face detection, landmark extraction, and drowsiness/emotion analysis using a single camera feed. It demonstrates the core detection pipeline and warning logic.
-
-\subsection{record\_side\_by\_side.py}
-This script records and displays side-by-side video from two ZED stereo cameras (passenger and front/road). It overlays timestamps, detects faces and emotions, and saves the output with a unique filename. The script is modular, with functions for face mesh setup, image enhancement, and detection.
-
-\subsection{crop\_and\_enhance\_passenger.py}
-This script processes passenger camera images, cropping and enhancing them to improve detection in poor lighting. It is used for preprocessing and testing lighting robustness.
-
-\section{System in Action}
-Below are example images of the scripts running in real time. These illustrate the detection overlays, warnings, and side-by-side video output.
 
 \begin{figure}[h!]
     \centering
@@ -75,11 +74,19 @@ Below are example images of the scripts running in real time. These illustrate t
     \caption{Face detection and drowsiness/emotion analysis (face\_detection.py)}
 \end{figure}
 
+
+\subsection{record\_side\_by\_side.py}
+This script records and displays side-by-side video from two ZED stereo cameras (passenger and front/road). It overlays timestamps, detects faces and emotions, and saves the output with a unique filename. The script is modular, with functions for face mesh setup, image enhancement, and detection.
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{example_side_by_side.png}
     \caption{Side-by-side video output with overlays (record\_side\_by\_side.py)}
 \end{figure}
+
+\subsection{crop\_and\_enhance\_passenger.py}
+This script processes passenger camera images, cropping and enhancing them to improve detection in poor lighting. It is used for preprocessing and testing lighting robustness.
+
 
 \begin{figure}[h!]
     \centering
@@ -88,7 +95,7 @@ Below are example images of the scripts running in real time. These illustrate t
 \end{figure}
 
 % Set smaller margins for the rest of the document
-\geometry{a4paper, margin=0.7in}
+
 
 \section{Introduction}
 This project implements a real-time monitoring system for drivers and passengers in autonomous carts. Using cameras and deep learning, the system detects drowsiness, yawning, and emotions, and provides visual feedback and warnings. The system is designed to be robust, modular, and easy to use in real-world conditions.

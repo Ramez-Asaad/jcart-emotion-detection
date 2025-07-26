@@ -46,18 +46,19 @@ def get_face_mesh():
 def analyze_faces_and_draw(frame, face_mesh=None):
     """
     Enhance the image, detect faces, emotions, drowsiness, yawning, nodding, and draw overlays.
-    Returns the processed frame.
+    Returns the processed frame and a list of detected states (one per face):
+    'Drowsiness', 'Yawning', 'Head Nodding', or the current emotion.
     """
     if face_mesh is None:
         face_mesh = get_face_mesh()
-    # Enhance image before detection
-    #frame = smart_enhance(frame, 1)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(rgb)
     h, w, _ = frame.shape
+    states = []
     if results.multi_face_landmarks:
         for face_idx, face_landmarks in enumerate(results.multi_face_landmarks):
             landmarks = np.array([(int(lm.x * w), int(lm.y * h)) for lm in face_landmarks.landmark])
+            nose_point = landmarks[NOSE_TIP_IDX]  # <-- Move this up before drowsiness logic
             xs, ys = landmarks[:, 0], landmarks[:, 1]
             x_min, x_max = xs.min(), xs.max()
             y_min, y_max = ys.min(), ys.max()
@@ -156,34 +157,60 @@ def analyze_faces_and_draw(frame, face_mesh=None):
                 jaw_clenched
             ):
                 emotion = "angry"
-            # Restrictive rule: Only set 'angry' if at least three cues are present and DeepFace did not detect a strong emotion
+            # Restrictive rule: Only set 'angry' if at least four cues are present and DeepFace did not detect a strong emotion
             strong_emotions = ["happy", "surprised", "fear", "disgust", "sad"]
             cues = 0
-            if brow_distance < 59:
+            if brow_distance < 57:
                 cues += 1
-            if brow_inner_distance < 33:
+            if brow_inner_distance < 31:
                 cues += 1
-            if ear < 0.28:
+            if ear < 0.26:
                 cues += 1
-            if mouth_height < 26:
+            if mouth_height < 25:
                 cues += 1
             if left_corner_y >= center_y - 8 or right_corner_y >= center_y - 8:
                 cues += 1
-            if cues >= 3 and emotion not in strong_emotions:
+            # Only set angry if cues >= 4 and DeepFace is not confident in another emotion
+            if cues >= 4 and emotion not in strong_emotions and (emotion == "neutral" or emotion == "Unknown"):
                 emotion = "angry"
-            nose_point = landmarks[NOSE_TIP_IDX]
-            if prev_y[face_idx] is not None and abs(prev_y[face_idx] - nose_point[1]) > NOD_THRESHOLD:
-                nod_counter[face_idx] += 1
-                cv2.putText(frame, "⚠ Head Nodding!", (x_min, y_max + 25),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
-            prev_y[face_idx] = nose_point[1]
+            # Drowsiness detection: only if eyes closed for >2.5 seconds AND head is tilted
+            drowsy = False
+            # Calculate how many frames is 2.5 seconds (assuming 20 FPS)
+            EYES_CLOSED_FRAMES = 50  # 2.5 seconds at 20 FPS
+            eyes_closed_long = blink_counter[face_idx] >= EYES_CLOSED_FRAMES
+            head_center_y = (y_min + y_max) // 2
+            head_center_x = (x_min + x_max) // 2
+            head_tilted = abs(nose_point[0] - head_center_x) > 10 and nose_point[1] > head_center_y + 5
+            if eyes_closed_long and head_tilted:
+                drowsy = True
+                cv2.putText(frame, "⚠ Drowsiness Detected!", (x_min, y_max + 50),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             if ear < EAR_THRESHOLD:
                 blink_counter[face_idx] += 1
-                if blink_counter[face_idx] >= EAR_CONSEC_FRAMES:
-                    cv2.putText(frame, "⚠ Drowsiness Detected!", (x_min, y_max + 50),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             else:
                 blink_counter[face_idx] = 0
+            # Yawning detection
+            yawning = False
+            if mar > MAR_THRESHOLD:
+                yawn_counter[face_idx] += 1
+                if yawn_counter[face_idx] > 0:
+                    yawning = True
+            else:
+                yawn_counter[face_idx] = 0
+            # Head nodding detection
+            nodding = False
+            if prev_y[face_idx] is not None and abs(prev_y[face_idx] - nose_point[1]) > NOD_THRESHOLD:
+                nod_counter[face_idx] += 1
+                if nod_counter[face_idx] > 0:
+                    nodding = True
+            prev_y[face_idx] = nose_point[1]
+            # if ear < EAR_THRESHOLD:
+            #     blink_counter[face_idx] += 1
+            #     if blink_counter[face_idx] >= EAR_CONSEC_FRAMES:
+            #         cv2.putText(frame, "⚠ Drowsiness Detected!", (x_min, y_max + 50),
+            #                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            # else:
+            #     blink_counter[face_idx] = 0
             if mar > MAR_THRESHOLD:
                 yawn_counter[face_idx] += 1
                 cv2.putText(frame, "⚠ Yawning!", (x_min, y_max + 70),
@@ -216,7 +243,19 @@ def analyze_faces_and_draw(frame, face_mesh=None):
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             for (x, y) in landmarks:
                 cv2.circle(frame, (x, y), 1, (0, 255, 0), -1)
-    return frame
+            # At the end of the per-face loop, append display_emotion to emotions
+            # emotions.append(display_emotion)
+            # Priority: Drowsiness > Yawning > Head Nodding > Emotion
+            if drowsy:
+                state = "Drowsiness"
+            elif yawning:
+                state = "Yawning"
+            elif nodding:
+                state = "Head Nodding"
+            else:
+                state = display_emotion
+            states.append(state)
+    return frame, states
 
 # =========== Standalone Demo ===========
 if __name__ == "__main__":
@@ -229,7 +268,7 @@ if __name__ == "__main__":
         ret, frame = cap.read()
         if not ret:
             break
-        frame = analyze_faces_and_draw(frame, face_mesh)
+        frame, emotion = analyze_faces_and_draw(frame, face_mesh)
         cv2.imshow("Passenger Emotion & Fatigue Monitor", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

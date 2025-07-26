@@ -1,0 +1,82 @@
+Found log files: ['wed 1 3min.log', 'wed 1 5min.log', 'wed 2 5min.log']
+Person 1 Classification Report:
+              precision    recall  f1-score   support
+
+       happy       0.88      0.94      0.91        16
+         sad       0.76      0.95      0.85        41
+       angry       1.00      1.00      1.00         3
+     neutral       0.98      0.79      0.88        72
+        fear       0.50      1.00      0.67         1
+     special       0.55      0.67      0.60         9
+
+    accuracy                           0.85       142
+   macro avg       0.78      0.89      0.82       142
+weighted avg       0.88      0.85      0.86       142
+
+Person 2 Classification Report:
+              precision    recall  f1-score   support
+
+       happy       0.88      0.88      0.88        17
+         sad       0.63      0.96      0.76        27
+       angry       0.90      1.00      0.95         9
+     neutral       1.00      0.72      0.84        71
+        fear       0.50      1.00      0.67         1
+     special       0.81      1.00      0.89        17
+
+    accuracy                           0.84       142
+   macro avg       0.79      0.93      0.83       142
+weighted avg       0.88      0.84      0.84       142
+
+Person 1 Head Nodding count: 3
+Timestamps: ['2025-07-16 15:27:19', '2025-07-16 15:29:46', '2025-07-16 14:47:22']
+Person 2 Head Nodding count: 1
+Timestamps: ['2025-07-16 14:52:01']
+
+Person 1 Overall Accuracy: 0.852
+Per-emotion metrics:
+  happy    | Precision: 0.88 | Recall: 0.94 | F1: 0.91
+  sad      | Precision: 0.76 | Recall: 0.95 | F1: 0.85
+  angry    | Precision: 1.00 | Recall: 1.00 | F1: 1.00
+  neutral  | Precision: 0.98 | Recall: 0.79 | F1: 0.88
+  fear     | Precision: 0.50 | Recall: 1.00 | F1: 0.67
+
+Summary Table:
+   Emotion  Correct  Total  Accuracy
+0    happy       15     16  0.937500
+1      sad       39     41  0.951220
+2    angry        3      3  1.000000
+3  neutral       57     72  0.791667
+4     fear        1      1  1.000000
+
+Person 2 Overall Accuracy: 0.838
+Per-emotion metrics:
+  happy    | Precision: 0.88 | Recall: 0.88 | F1: 0.88
+  sad      | Precision: 0.63 | Recall: 0.96 | F1: 0.76
+  angry    | Precision: 0.90 | Recall: 1.00 | F1: 0.95
+  neutral  | Precision: 1.00 | Recall: 0.72 | F1: 0.84
+  fear     | Precision: 0.50 | Recall: 1.00 | F1: 0.67
+
+Summary Table:
+   Emotion  Correct  Total  Accuracy
+0    happy       15     17  0.882353
+1      sad       26     27  0.962963
+2    angry        9      9  1.000000
+3  neutral       51     71  0.718310
+4     fear        1      1  1.000000
+
+Combined (Person 1 + 2) Overall Accuracy: 0.845
+Per-emotion metrics:
+  happy    | Precision: 0.88 | Recall: 0.91 | F1: 0.90
+  sad      | Precision: 0.71 | Recall: 0.96 | F1: 0.81
+  angry    | Precision: 0.92 | Recall: 1.00 | F1: 0.96
+  neutral  | Precision: 0.99 | Recall: 0.76 | F1: 0.86
+  fear     | Precision: 0.50 | Recall: 1.00 | F1: 0.67
+
+Summary Table:
+   Emotion  Correct  Total  Accuracy
+0    happy       30     33  0.909091
+1      sad       65     68  0.955882
+2    angry       12     12  1.000000
+3  neutral      108    143  0.755245
+4     fear        2      2  1.000000
+Advanced log analysis complete.

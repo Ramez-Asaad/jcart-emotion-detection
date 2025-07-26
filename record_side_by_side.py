@@ -157,32 +157,40 @@ def main():
     # Create output filename with day and timestamp
     now = datetime.now()
     out_filename = now.strftime('video %d %H-%M-%S.avi')
-    out = cv2.VideoWriter(out_filename, fourcc, 20.0, (1920, 540))
+    out = cv2.VideoWriter(out_filename, fourcc, 20.0, (960, 540))
     face_mesh = get_face_mesh()
     print(f"Recording started. Saving to {out_filename}. Press 'q' to stop.")
+    log_file = open(out_filename.replace('.avi', '.log'), 'w')
+    log_file.write('timestamp,detected_emotion\n')
+    last_log_time = datetime.now()
     while True:
         ret1, frame1 = cap_passenger.read()
         #ret2, frame2 = cap_front.read()
         if not ret1:
             break
         frame1 = cv2.rotate(frame1, cv2.ROTATE_180)
-        frame1 = crop_and_enhance(frame1, 1)  # Use smart_enhance from face_detection_passenger
+        frame1 = crop_and_enhance(frame1, 0.8)  # Use smart_enhance from face_detection_passenger
         # Ensure frame1 is processed before analyzing faces
         h, w, _ = frame1.shape
-        display_img1 = analyze_faces_and_draw(frame1, face_mesh)
+        display_img1, detected_emotion = analyze_faces_and_draw(frame1, face_mesh)
         #frame2_processed = process_front_camera(frame2)
         display_img1 = cv2.resize(display_img1, (960, 540))
-        #left_img2_resized = cv2.resize(frame2_processed, (960, 540))
-       # combined = np.hstack((display_img1, left_img2_resized))
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        cv2.putText(display_img1, timestamp, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+        cv2.putText(display_img1, timestamp, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv2.imshow('Passenger (left) | Front (right)', display_img1)
         out.write(display_img1)
+        # Log every 10 seconds
+        now = datetime.now()
+        if (now - last_log_time).total_seconds() >= 10:
+            log_file.write(f'{timestamp},{detected_emotion}\n')
+            log_file.flush()
+            last_log_time = now
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap_passenger.release()
     # cap_front.release()
     out.release()
+    log_file.close()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

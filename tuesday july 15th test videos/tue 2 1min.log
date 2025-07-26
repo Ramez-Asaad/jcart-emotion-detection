@@ -1,0 +1,12 @@
+timestamp,detected_emotion, true_emotion
+2025-07-15 10:09:38,happy, happy
+2025-07-15 10:09:43,happy, happy
+2025-07-15 10:09:48,neutral, angry
+2025-07-15 10:09:53,happy, angry
+2025-07-15 10:09:58,sad, sad
+2025-07-15 10:10:03,neutral, neutral
+2025-07-15 10:10:08,neutral, neutral
+2025-07-15 10:10:13,surprise, surprise
+2025-07-15 10:10:19,sad, sad
+2025-07-15 10:10:24,sad, sad
+2025-07-15 10:10:29,neutral, angry
