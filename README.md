@@ -78,7 +78,8 @@ pip install -r requirements.txt
 Academic research project - Please cite if used in publications.
 
 ## 👥 Contributors
-- Primary Research: Ramez Asaad, Rana Houssam (2021-2025)
+- Primary Research: Ramez Asaad, Rana Houssam (Summer 2025)
+- Instructor: Dr Samy El-Tawab
 - Institution: Alamein International University & JMU
 
 ---
