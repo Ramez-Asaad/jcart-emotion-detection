@@ -1,0 +1,12 @@
+timestamp,emotion_1,emotion_2, true_emotion1, true_emotion2
+2025-07-15 10:50:02,none, none, none, none
+2025-07-15 10:50:07,none, none, none, none
+2025-07-15 10:50:12,none, none, none, none
+2025-07-15 10:50:17,neutral,sad, neutral, sad
+2025-07-15 10:50:22,neutral,sad, neutral, happy
+2025-07-15 10:50:27,surprised,neutral, surprised, neutral
+2025-07-15 10:50:32,neutral,neutral, neutral, neutral
+2025-07-15 10:50:37,sad,neutral, sad, neutral
+2025-07-15 10:50:42,neutral,neutral, neutral, neutral
+2025-07-15 10:50:47,sad,sad, sad, sad
+2025-07-15 10:50:53,happy,neutral, neutral, neutral

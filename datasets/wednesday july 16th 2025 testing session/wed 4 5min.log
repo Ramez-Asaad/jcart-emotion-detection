@@ -1,0 +1,60 @@
+timestamp,emotion_1,emotion_2
+2025-07-16 15:07:18,neutral,happy
+2025-07-16 15:07:23,neutral,neutral
+2025-07-16 15:07:28,angry,happy
+2025-07-16 15:07:34,angry,none
+2025-07-16 15:07:39,sad,sad
+2025-07-16 15:07:44,sad,neutral
+2025-07-16 15:07:49,sad,neutral
+2025-07-16 15:07:54,sad,Drowsiness
+2025-07-16 15:07:59,Head Nodding,Drowsiness
+2025-07-16 15:08:04,angry,neutral
+2025-07-16 15:08:09,angry,neutral
+2025-07-16 15:08:14,neutral,neutral
+2025-07-16 15:08:19,happy,neutral
+2025-07-16 15:08:24,Head Nodding,Head Nodding
+2025-07-16 15:08:29,Drowsiness,neutral
+2025-07-16 15:08:34,Head Nodding,none
+2025-07-16 15:08:39,none,none
+2025-07-16 15:08:45,none,none
+2025-07-16 15:08:50,none,none
+2025-07-16 15:08:55,none,none
+2025-07-16 15:09:00,none,none
+2025-07-16 15:09:05,none,none
+2025-07-16 15:09:10,neutral,none
+2025-07-16 15:09:15,neutral,sad
+2025-07-16 15:09:20,fear,none
+2025-07-16 15:09:25,neutral,none
+2025-07-16 15:09:30,angry,neutral
+2025-07-16 15:09:35,happy,none
+2025-07-16 15:09:40,Head Nodding,neutral
+2025-07-16 15:09:45,neutral,angry
+2025-07-16 15:09:50,neutral,none
+2025-07-16 15:09:56,neutral,sad
+2025-07-16 15:10:01,neutral,neutral
+2025-07-16 15:10:06,neutral,none
+2025-07-16 15:10:11,happy,none
+2025-07-16 15:10:16,neutral,neutral
+2025-07-16 15:10:21,neutral,happy
+2025-07-16 15:10:26,neutral,none
+2025-07-16 15:10:31,Head Nodding,Head Nodding
+2025-07-16 15:10:36,Head Nodding,sad
+2025-07-16 15:10:41,sad,none
+2025-07-16 15:10:46,neutral,angry
+2025-07-16 15:10:51,angry,Drowsiness
+2025-07-16 15:10:56,neutral,neutral
+2025-07-16 15:11:02,neutral,neutral
+2025-07-16 15:11:07,none,none
+2025-07-16 15:11:12,neutral,angry
+2025-07-16 15:11:17,sad,angry
+2025-07-16 15:11:22,neutral,angry
+2025-07-16 15:11:27,neutral,neutral
+2025-07-16 15:11:32,neutral,happy
+2025-07-16 15:11:37,neutral,neutral
+2025-07-16 15:11:42,neutral,happy
+2025-07-16 15:11:47,sad,happy
+2025-07-16 15:11:52,Head Nodding,neutral
+2025-07-16 15:11:57,sad,fear
+2025-07-16 15:12:02,sad,neutral
+2025-07-16 15:12:07,angry,neutral
+2025-07-16 15:12:12,neutral,neutral

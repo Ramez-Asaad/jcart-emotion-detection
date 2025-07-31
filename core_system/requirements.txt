@@ -1,0 +1,6 @@
+opencv-python
+numpy
+dlib
+deepface
+scipy
+imutils
