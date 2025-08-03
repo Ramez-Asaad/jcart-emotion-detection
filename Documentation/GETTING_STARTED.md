@@ -19,7 +19,7 @@ Welcome to the JCart Emotion Detection System! This guide will help new students
 
 ### 1. Clone the Repository
 ```bash
-git clone [repository-url]
+git clone https://github.com/Ramez-Asaad/jcart-emotion-detection
 cd jcart-emotion-detection
 ```
 
